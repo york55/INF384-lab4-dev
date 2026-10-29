@@ -36,52 +36,58 @@ Presupuesto: 11  min  Métrica DORA: change failure rate
 
 ## Parte 2 · Implementación
 - Link al run en verde en main: https://github.com/york55/INF384-lab4-dev/actions/runs/40963238639/job/123762027122
-- Link al pull request: https://github.com/york55/INF384-lab4-dev/pull/3
+- Link al pull request: https://github.com/york55/INF384-lab4-dev/pull/4
 - Defecto de la aplicación introducido (archivo y descripción): src/db.js. En la transacción transferir se comentó acreditar.run(monto, destino). La transferencia debita al origen pero no acredita al destino: el dinero desaparece y la API igual responde 200.
 - Job que debería detenerlo: integration. Usa SQLite real y verifica que los saldos se guardan. unit no lo detecta porque usa un store falso en memoria que no ejecuta el SQL.
-- Link al run fallido: https://github.com/york55/INF384-lab4-dev/actions/runs/40964276068
+- Link al run fallido: https://github.com/york55/INF384-lab4-dev/actions/runs/40967735014
 
 ## Parte 3 · Decisión bajo restricción
-Link al run medido:
+Link al run medido: https://github.com/york55/INF384-lab4-dev/actions/runs/40963238639/job/123762027122
 
 | Job | Duración (min:seg) |
 |---|---|
-| unit | |
-| integration | |
-| sast | |
-| sca | |
-| build-push | |
-| deploy | |
-| smoke | |
-| e2e | |
-| load | |
-| **Total** | |
+| unit | 0:14 |
+| integration | 0:12 |
+| sast | 0:19 |
+| sca | 0:16 |
+| build-push | 0:42 |
+| deploy | 0:19 |
+| smoke | 0:11 |
+| e2e | 0:17 |
+| load | 12:15 |
+| **Total** | 14:45 |
 
 Resultado de load en ese run:
 | Métrica | Valor |
 |---|---|
-| p90 | |
-| p95 | |
-| Máximo | |
-| Tasa de error | |
-| Requests por segundo | |
+| p90 | 47,94 ms |
+| p95 | 50,46 ms |
+| Máximo | 293,99 ms |
+| Tasa de error | 0,00 % (0 de 36 578) |
+| Requests por segundo | 50,76 |
 
 Conclusión sobre el comportamiento bajo carga:
+Con 30 VUs durante 12 minutos el servicio respondió sin errores (0 de 36 578 requests, checks al 100 %). El p95 fue 50,46 ms, unas diez veces por debajo del umbral de 500 ms que traía el pipeline, así que ese umbral no detectaría una degradación real. El máximo de 294 ms es unas seis veces el p95 y se explica por el arranque de instancias de Lambda durante la rampa. La latencia se mantuvo estable en el tramo constante.
 
 SLO propuesto (percentil, valor, ventana) y justificación:
+p95 de http_req_duration menor a 150 ms, medido en ventana de 30 días móviles. Elegí 2 veces el p95 medido (50,46 ms, o sea 100,9 ms), redondeado hacia arriba a múltiplo de 50 ms. Un valor pegado a lo medido haría fallar load por la variación normal entre runs. Además, el test acortado tiene menos muestras y más peso de arranques en frío.
 
 SLA propuesto y diferencia con el SLO:
+99,5 % de requests exitosos por mes y p95 menor a 450 ms (3 veces el SLO), con crédito de servicio si se incumple. El SLO es un objetivo interno que el pipeline mide y puede detener un despliegue. El SLA es un compromiso con el cliente, con consecuencias contractuales, y por eso es más flojo que el SLO.
 
 Cambios para cumplir el presupuesto:
 | Cambio | Job | Minutos recuperados |
 |---|---|---|
+| Carga constante de 10 a 4 min (rampas sin cambio) | load | 6:05 (12:15 a 6:10) |
 
-Total resultante: [ ] min
-Link al run en main con los cambios:
+Total resultante: 8:47 min (antes 14:45, diferencia neta de 5:58 porque los demás jobs variaron unos segundos entre runs).
+Link al run en main con los cambios: https://github.com/york55/INF384-lab4-dev/actions/runs/40967057820
 
 Riesgo aceptado (defecto de la aplicación concreto y efecto en la métrica DORA asignada):
+Defecto concreto: una fuga de memoria en el manejo de transferir (por ejemplo, acumular cada movimiento en un arreglo a nivel de módulo). Degrada la latencia o agota la memoria de la instancia solo después de muchos requests sostenidos. Con 12 minutos de carga podía hacer superar el SLO. Con el tramo constante en 4 minutos (40 % de las peticiones de ese tramo) puede no manifestarse. El defecto llega a producción y se detecta ahí. Efecto en la change failure rate: sube.
 
 Decisión sobre sast (se queda / se mueve a otra etapa o evento / informativo) y razón:
+sast se queda en todos los runs. Cuesta 0:21, un 4,0 % de los 8:47 del pipeline final (2,4 % de los 14:45 originales). Quitarlo o moverlo solo recuperaría esos segundos, que no hacen falta para el presupuesto. Es la defensa contra patrones inseguros que los tests no cubren, como una inyección SQL con entradas válidas. Mantenerlo no cambia la CFR respecto a hoy. Sacarlo de main la haría subir, porque esos defectos se detectarían después o nunca.
 
 ## Declaración de uso de IA
 Herramientas usadas y para qué:
