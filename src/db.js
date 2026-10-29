@@ -51,7 +51,7 @@ function crearStore(db) {
 
   const transferir = db.transaction((origen, destino, monto) => {
     debitar.run(monto, origen);
-    acreditar.run(monto, destino);
+    //acreditar.run(monto, destino);
     return Number(registrar.run(origen, destino, monto).lastInsertRowid);
   });
 
