@@ -85,3 +85,20 @@ Decisión sobre sast (se queda / se mueve a otra etapa o evento / informativo) y
 
 ## Declaración de uso de IA
 Herramientas usadas y para qué:
+# Declaración de uso de IA
+Herramientas usadas y para qué:
+
+**Claude, en claude.ai.** Lo usé como asistente durante todo el laboratorio, para lo siguiente:
+
+1. **Lectura del material.** Resumió el enunciado, las preguntas, las diapositivas de la sesión 9 y el repositorio base (`README.md`, `ci.yml`, `Dockerfile`, `package.json`, `src/` y los tests).
+2. **Diagnóstico (Parte 1).** Propuso candidatos a defectos del pipeline y explicó el problema que causa cada uno, su etapa y su clasificación. Yo elegí cuáles usar y qué evidencia presentar.
+3. **Correcciones.** Propuso los cambios concretos en `ci.yml` y `test/e2e`. Yo los hice en mi fork, desde la web de GitHub, un commit por defecto.
+4. **Guía de procedimiento.** Me explicó el uso de ramas, pull requests, merge commit y la cancelación de runs.
+5. **Defecto de la aplicación (Parte 2).** Sugirió el cambio en `src/db.js` y el razonamiento de por qué lo detiene `integration` y no `unit`.
+6. **Decisión bajo restricción (Parte 3).** Me ayudó con el método para proponer el SLO y el SLA, un plan de recortes para el presupuesto de 11 minutos, y borradores del riesgo aceptado (change failure rate) y de la decisión sobre `sast`.
+
+**Lo que no hizo la IA.** No ejecutó el pipeline ni tuvo acceso a mi fork ni a mis secrets. Todos los runs, commits, duraciones, resultados de k6 y evidencias salen de mis propias ejecuciones. Una propuesta de la IA, un gate en el escaneo de la imagen, falló en mi run porque la imagen base trae 211 hallazgos HIGH o CRITICAL con parche. La revertí y la reemplacé por otra corrección.
+
+**Prompt representativo** (resumen de lo que pedí, no la transcripción literal):
+
+> Estoy rindiendo el Laboratorio 4 de INF384 (PUCP). Te adjunto el enunciado del caso y el PDF de preguntas. Guíame paso a paso para: (1) diagnosticar los cinco defectos del pipeline en ci.yml, package.json y test/, con job y etapa, problema, clasificación de la corrección y la evidencia que debo observar en mis runs; (2) dar los cambios exactos de cada commit, uno por defecto, y cómo llevarlos a main con un merge commit; (3) introducir un defecto de la aplicación en src/ que un job deba detener y justificar cuál; (4) con mi presupuesto de 11 minutos y la métrica DORA change failure rate, decidir los recortes, proponer un SLO y un SLA a partir de mis resultados de k6, y redactar el riesgo aceptado y la decisión sobre sast.
