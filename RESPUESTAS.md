@@ -91,8 +91,6 @@ sast se queda en todos los runs. Cuesta 0:21, un 4,0 % de los 8:47 del pipeline 
 
 ## Declaración de uso de IA
 Herramientas usadas y para qué:
-# Declaración de uso de IA
-Herramientas usadas y para qué:
 
 **Claude, en claude.ai.** Lo usé como asistente durante todo el laboratorio, para lo siguiente:
 
