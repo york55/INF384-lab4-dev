@@ -35,11 +35,11 @@ Presupuesto: 11  min  Métrica DORA: change failure rate
 - Evidencia (dato observado, con link al run o fragmento de la salida local):
 
 ## Parte 2 · Implementación
-- Link al run en verde en main:
-- Link al pull request:
-- Defecto de la aplicación introducido (archivo y descripción):
-- Job que debería detenerlo:
-- Link al run fallido:
+- Link al run en verde en main: https://github.com/york55/INF384-lab4-dev/actions/runs/40963238639/job/123762027122
+- Link al pull request: https://github.com/york55/INF384-lab4-dev/pull/3
+- Defecto de la aplicación introducido (archivo y descripción): src/db.js. En la transacción transferir se comentó acreditar.run(monto, destino). La transferencia debita al origen pero no acredita al destino: el dinero desaparece y la API igual responde 200.
+- Job que debería detenerlo: integration. Usa SQLite real y verifica que los saldos se guardan. unit no lo detecta porque usa un store falso en memoria que no ejecuta el SQL.
+- Link al run fallido: https://github.com/york55/INF384-lab4-dev/actions/runs/40964276068
 
 ## Parte 3 · Decisión bajo restricción
 Link al run medido:
